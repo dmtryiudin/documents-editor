@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  LoginPasswordRegistrationForm,
+  EmailPasswordRegistrationForm,
   RegisterAuthenticator,
   RegistrationFinished,
 } from "@/components";
@@ -85,7 +85,7 @@ export const RegistrationForm = () => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 ? <LoginPasswordRegistrationForm /> : null}
+      {activeStep === 0 ? <EmailPasswordRegistrationForm /> : null}
       {activeStep === 1 ? <RegisterAuthenticator /> : null}
       {activeStep === 2 ? <RegistrationFinished /> : null}
     </Stack>

@@ -58,8 +58,12 @@ export class AuthController {
         msg.content.toString() && JSON.parse(msg.content.toString());
 
       const PreLoginPayloadValidation = z.object({
-        username: z.string({ message: "Має бути строкою" }),
-        password: z.string({ message: "Має бути строкою" }),
+        username: z
+          .string({ message: "Має бути строкою" })
+          .min(1, { message: "Поле обов'язкове" }),
+        password: z
+          .string({ message: "Має бути строкою" })
+          .min(1, { message: "Поле обов'язкове" }),
       });
 
       const validationResult =

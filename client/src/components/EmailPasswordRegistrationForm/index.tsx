@@ -20,7 +20,7 @@ import { useFormValidation } from "@/hooks";
 import { submitForm } from "./actions";
 import { useSearchParams } from "next/navigation";
 
-export const LoginPasswordRegistrationForm: FC = () => {
+export const EmailPasswordRegistrationForm: FC = () => {
   const params = useSearchParams();
   const errorMessage = params.get("errorMessage");
 

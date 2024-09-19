@@ -1,5 +1,10 @@
 import { RegistrationForm } from "@/components";
+import { Suspense } from "react";
 
 export default function RegistrationPage() {
-  return <RegistrationForm />;
+  return (
+    <Suspense>
+      <RegistrationForm />
+    </Suspense>
+  );
 }
