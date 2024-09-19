@@ -12,7 +12,7 @@ export default function Layout({
           bg="white"
           rounded="lg"
           p="5"
-          w={{ base: "100%", lg: "75%", xl: "50%" }}
+          w={{ base: "100%", lg: "90%", xl: "75%" }}
         >
           {children}
         </Box>
