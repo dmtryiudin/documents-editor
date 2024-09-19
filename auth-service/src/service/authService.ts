@@ -57,13 +57,13 @@ export class AuthService {
       );
     }
 
-    const token = TokenService.generatePreLoginToken(candidate.id);
+    const token = await TokenService.generatePreLoginToken(candidate.id);
 
     return { preLoginToken: token };
   }
 
   static async f2aLogin({ token, totpCode }: F2ALoginRequest) {
-    const tokenData = TokenService.validatePreLoginToken(token);
+    const tokenData = await TokenService.validatePreLoginToken(token);
     const tokenPayload =
       typeof tokenData === "string" ? null : (tokenData?.data as JWTTokenData);
 
@@ -86,6 +86,8 @@ export class AuthService {
 
     const accessToken = TokenService.generateAccessToken(candidate.id);
     const refreshToken = await TokenService.generateRefreshToken(candidate.id);
+
+    await TokenService.killPreLoginToken(candidate.id);
 
     return {
       user: candidate,

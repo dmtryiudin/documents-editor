@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import jwt from "jsonwebtoken";
 import { RefreshToken } from "../models/ResreshToken";
+import { PreLoginToken } from "../models/PreLoginToken";
 
 export class TokenService {
   static generateAccessToken(userId: Types.ObjectId) {
@@ -15,11 +16,7 @@ export class TokenService {
   static async validateAccessToken(token: string) {}
 
   static async generateRefreshToken(userId: Types.ObjectId) {
-    const foundTokenForUser = await RefreshToken.findOne({ user: userId });
-
-    if (foundTokenForUser) {
-      await RefreshToken.deleteOne({ user: userId });
-    }
+    await RefreshToken.findOneAndDelete({ user: userId });
 
     const newRefreshToken = jwt.sign(
       {
@@ -47,18 +44,32 @@ export class TokenService {
     }
   }
 
-  static generatePreLoginToken(userId: Types.ObjectId) {
-    return jwt.sign(
+  static async killPreLoginToken(userId: Types.ObjectId) {
+    return await PreLoginToken.findOneAndDelete({ user: userId });
+  }
+
+  static async generatePreLoginToken(userId: Types.ObjectId) {
+    await this.killPreLoginToken(userId);
+    const newToken = jwt.sign(
       {
         data: { userId },
       },
       process.env.JWT_PRE_LOGIN_SECRET!,
       { expiresIn: "30m" }
     );
+
+    await PreLoginToken.create({ user: userId, token: newToken });
+    return newToken;
   }
 
-  static validatePreLoginToken(token: string) {
+  static async validatePreLoginToken(token: string) {
     try {
+      const dbToken = await PreLoginToken.findOne({ token });
+
+      if (!dbToken) {
+        return null;
+      }
+
       return jwt.verify(token, process.env.JWT_PRE_LOGIN_SECRET!);
     } catch {
       return null;

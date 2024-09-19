@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-export type PreAuthFormProps = {
-  onSubmit: (username: string, password: string) => void;
-  isLoading: boolean;
-};
-
 export type FormValues = {
   username: string;
   password: string;
