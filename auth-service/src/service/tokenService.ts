@@ -2,6 +2,8 @@ import { Types } from "mongoose";
 import jwt from "jsonwebtoken";
 import { RefreshToken } from "../models/ResreshToken";
 import { PreLoginToken } from "../models/PreLoginToken";
+import bcrypt from "bcrypt";
+import { JWTTokenData } from "../types/JWTTokenData";
 
 export class TokenService {
   static generateAccessToken(userId: Types.ObjectId) {
@@ -26,20 +28,48 @@ export class TokenService {
       { expiresIn: "14d" }
     );
 
-    await RefreshToken.create({ user: userId, token: newRefreshToken });
+    const hashToken = await bcrypt.hash(newRefreshToken, 12);
+
+    await RefreshToken.create({ user: userId, token: hashToken });
     return newRefreshToken;
   }
 
   static async validateRefreshToken(token: string) {
     try {
-      const savedToken = await RefreshToken.findOne({ token });
+      const verifyTokenResult = jwt.verify(
+        token,
+        process.env.JWT_REFRESH_SECRET!
+      );
 
-      if (!savedToken) {
+      if (!verifyTokenResult) {
         return null;
       }
 
-      return jwt.verify(token, process.env.JWT_REFRESH_SECRET!);
-    } catch {
+      const owner =
+        typeof verifyTokenResult === "string"
+          ? null
+          : (verifyTokenResult?.data as JWTTokenData);
+
+      const ownerId = owner?.userId;
+
+      if (!ownerId) {
+        return null;
+      }
+
+      const foundToken = await RefreshToken.findOne({ user: ownerId });
+
+      if (!foundToken) {
+        return null;
+      }
+
+      const compareHash = await bcrypt.compare(token, foundToken.token);
+
+      if (!compareHash) {
+        return null;
+      }
+
+      return verifyTokenResult;
+    } catch (e) {
       return null;
     }
   }
