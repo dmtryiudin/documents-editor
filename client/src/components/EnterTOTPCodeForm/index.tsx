@@ -14,6 +14,8 @@ import {
 } from "@chakra-ui/react";
 import { PinInput, PinInputField } from "@chakra-ui/react";
 import { submitForm } from "./actions";
+import { useServerActionClientRequest } from "@/hooks";
+import { FormValues } from "./types";
 
 export const EnterTOTPCodeForm = () => {
   const params = useSearchParams();
@@ -21,10 +23,13 @@ export const EnterTOTPCodeForm = () => {
   const token = params.get("token")!;
   const [totpCode, setTotpCode] = useState<string>("");
 
+  const { isLoading, wrappedCallback } =
+    useServerActionClientRequest<FormValues>(submitForm);
+
   const onSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
     if (totpCode.length === 6) {
-      await submitForm(token, totpCode);
+      await wrappedCallback({ token, totpCode });
     }
   };
 
@@ -54,6 +59,7 @@ export const EnterTOTPCodeForm = () => {
         colorScheme="teal"
         alignSelf={{ lg: "flex-end" }}
         type="submit"
+        isLoading={isLoading}
       >
         Продовжити
       </Button>

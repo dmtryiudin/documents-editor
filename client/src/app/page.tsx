@@ -1,11 +1,25 @@
-"use client";
+import { SessionManagement } from "@/service/SessionManagement";
+import { Routes } from "@/types/Routes";
+import { Button } from "@chakra-ui/react";
 
-import { Link } from "@chakra-ui/next-js";
+export default async function Home() {
+  const session = await SessionManagement.getSession();
 
-export default function Home() {
   return (
-    <Link href="/about" color="blue.400" _hover={{ color: "blue.500" }}>
-      About
-    </Link>
+    <>
+      <Button as="a" href={Routes.LOGIN}>
+        Login
+      </Button>
+      <Button as="a" href={Routes.REGISTRATION}>
+        Registration
+      </Button>
+      {session ? (
+        <Button as="a" href={Routes.LOGOUT}>
+          logout
+        </Button>
+      ) : null}
+      <span>Session data:</span>
+      {JSON.stringify(session)}
+    </>
   );
 }

@@ -5,12 +5,13 @@ import { FormValues } from "./types";
 import { api } from "@/utils/api";
 import { redirect } from "next/navigation";
 import { PreLoginResponse } from "@/types/PreLoginResponse";
+import { ApiRoutes, Routes } from "@/types/Routes";
 
 export async function submitForm(data: FormValues) {
   let redirectUrl = "";
   try {
     const response = await api.post<Response<PreLoginResponse>>(
-      "/auth/login/pre-login",
+      ApiRoutes.PRE_LOGIN,
       data
     );
 
@@ -20,7 +21,7 @@ export async function submitForm(data: FormValues) {
       throw new Error();
     }
 
-    redirectUrl = `/auth/login?step=1&token=${encodeURIComponent(
+    redirectUrl = `${Routes.LOGIN}?step=1&token=${encodeURIComponent(
       responseData.preLoginToken
     )}`;
   } catch (e: any) {
@@ -28,7 +29,7 @@ export async function submitForm(data: FormValues) {
       e?.response?.data?.error?.message ||
       "Щось пішло не так. Спробуйте ще раз пізніше.";
 
-    redirectUrl = `/auth/login?step=0&errorMessage=${encodeURIComponent(
+    redirectUrl = `${Routes.LOGIN}?step=0&errorMessage=${encodeURIComponent(
       errorMessage
     )}`;
   } finally {

@@ -3,13 +3,16 @@
 import { Response } from "@/types/Response";
 import { api } from "@/utils/api";
 import { redirect } from "next/navigation";
-import { LoginResponse } from "@/types/LoginResponse";
+import { Session } from "@/types/Session";
+import { SessionManagement } from "@/service/SessionManagement";
+import { ApiRoutes, Routes } from "@/types/Routes";
+import { FormValues } from "./types";
 
-export async function submitForm(token: string, totpCode: string) {
+export async function submitForm({ token, totpCode }: FormValues) {
   let redirectUrl = "";
   try {
-    const response = await api.post<Response<LoginResponse>>(
-      "/auth/login/f2a-login",
+    const response = await api.post<Response<Session>>(
+      ApiRoutes.F2A_LOGIN,
       { totpCode },
       {
         headers: {
@@ -24,13 +27,14 @@ export async function submitForm(token: string, totpCode: string) {
       throw new Error();
     }
 
-    redirectUrl = `/auth/login?step=2`;
+    redirectUrl = `${Routes.LOGIN}?step=2`;
+    await SessionManagement.setSession(responseData);
   } catch (e: any) {
     const errorMessage =
       e?.response?.data?.error?.message ||
       "Щось пішло не так. Спробуйте ще раз пізніше.";
 
-    redirectUrl = `/auth/login?step=1&token=${encodeURIComponent(
+    redirectUrl = `${Routes.LOGIN}?step=1&token=${encodeURIComponent(
       token
     )}&errorMessage=${encodeURIComponent(errorMessage)}`;
   } finally {

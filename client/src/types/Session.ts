@@ -1,6 +1,6 @@
 import { User } from "./User";
 
-export type LoginResponse = {
+export type Session = {
   user: User;
   accessToken: string;
   refreshToken: string;

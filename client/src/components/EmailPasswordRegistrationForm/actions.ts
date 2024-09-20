@@ -5,12 +5,14 @@ import { FormValues } from "./types";
 import { api } from "@/utils/api";
 import { redirect } from "next/navigation";
 import { RegistrationResponse } from "@/types/RegistrationResponse";
+import { SessionManagement } from "@/service/SessionManagement";
+import { ApiRoutes, Routes } from "@/types/Routes";
 
 export async function submitForm(data: FormValues) {
   let redirectUrl = "";
   try {
     const response = await api.post<Response<RegistrationResponse>>(
-      "/auth/registration",
+      ApiRoutes.REGISTRATION,
       data
     );
 
@@ -20,17 +22,21 @@ export async function submitForm(data: FormValues) {
       throw new Error();
     }
 
-    redirectUrl = `/auth/registration?step=1&totpUri=${encodeURIComponent(
+    redirectUrl = `${Routes.REGISTRATION}?step=1&totpUri=${encodeURIComponent(
       responseData.totpUri
     )}`;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { totpUri, ...rest } = responseData;
+    await SessionManagement.setSession(rest);
   } catch (e: any) {
     const errorMessage =
       e?.response?.data?.error?.message ||
       "Щось пішло не так. Спробуйте ще раз пізніше.";
 
-    redirectUrl = `/auth/registration?step=0&errorMessage=${encodeURIComponent(
-      errorMessage
-    )}`;
+    redirectUrl = `${
+      Routes.REGISTRATION
+    }?step=0&errorMessage=${encodeURIComponent(errorMessage)}`;
   } finally {
     redirect(redirectUrl);
   }

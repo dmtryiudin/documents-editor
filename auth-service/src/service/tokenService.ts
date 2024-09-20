@@ -45,10 +45,7 @@ export class TokenService {
         return null;
       }
 
-      const owner =
-        typeof verifyTokenResult === "string"
-          ? null
-          : (verifyTokenResult?.data as JWTTokenData);
+      const owner = this.getTokenData(verifyTokenResult);
 
       const ownerId = owner?.userId;
 
@@ -88,21 +85,55 @@ export class TokenService {
       { expiresIn: "30m" }
     );
 
-    await PreLoginToken.create({ user: userId, token: newToken });
+    const hashToken = await bcrypt.hash(newToken, 12);
+
+    await PreLoginToken.create({ user: userId, token: hashToken });
     return newToken;
   }
 
   static async validatePreLoginToken(token: string) {
     try {
-      const dbToken = await PreLoginToken.findOne({ token });
+      const verifyTokenResult = jwt.verify(
+        token,
+        process.env.JWT_PRE_LOGIN_SECRET!
+      );
 
-      if (!dbToken) {
+      if (!verifyTokenResult) {
         return null;
       }
 
-      return jwt.verify(token, process.env.JWT_PRE_LOGIN_SECRET!);
+      const owner = this.getTokenData(verifyTokenResult);
+
+      const ownerId = owner?.userId;
+
+      const foundToken = await PreLoginToken.findOne({ user: ownerId });
+
+      if (!foundToken) {
+        return null;
+      }
+
+      const compareHash = await bcrypt.compare(token, foundToken.token);
+
+      if (!ownerId) {
+        return null;
+      }
+
+      if (!compareHash) {
+        return null;
+      }
+
+      return verifyTokenResult;
     } catch {
       return null;
     }
+  }
+
+  static getTokenData(verifyTokenResult: string | jwt.JwtPayload | null) {
+    const owner =
+      typeof verifyTokenResult === "string"
+        ? null
+        : (verifyTokenResult?.data as JWTTokenData);
+
+    return owner;
   }
 }

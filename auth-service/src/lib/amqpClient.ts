@@ -8,7 +8,7 @@ export class AmqpClient {
 
   static async getConnectionAndChannel() {
     if (!this.connection) {
-      this.connection = await amqp.connect("amqp://localhost:5672");
+      this.connection = await amqp.connect(process.env.AMQP_URL!);
     }
 
     if (!this.channel) {

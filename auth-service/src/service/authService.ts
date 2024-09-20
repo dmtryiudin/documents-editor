@@ -65,8 +65,7 @@ export class AuthService {
 
   static async f2aLogin({ token, totpCode }: F2ALoginRequest) {
     const tokenData = await TokenService.validatePreLoginToken(token);
-    const tokenPayload =
-      typeof tokenData === "string" ? null : (tokenData?.data as JWTTokenData);
+    const tokenPayload = TokenService.getTokenData(tokenData);
 
     if (!tokenPayload) {
       throw ResponseError.unauthorized("Невірні дані для автентифікації.");
@@ -101,10 +100,7 @@ export class AuthService {
     const refreshTokenData = await TokenService.validateRefreshToken(
       refreshToken
     );
-    const refreshTokenPayload =
-      typeof refreshTokenData === "string"
-        ? null
-        : (refreshTokenData?.data as JWTTokenData);
+    const refreshTokenPayload = TokenService.getTokenData(refreshTokenData);
 
     if (!refreshTokenPayload) {
       throw ResponseError.unauthorized("Невірні дані для автентифікації.");
