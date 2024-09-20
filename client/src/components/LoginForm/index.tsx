@@ -17,6 +17,8 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { EmailPasswordLoginForm } from "../EmailPasswordLoginForm";
+import { EnterTOTPCodeForm } from "../EnterTOTPCodeForm";
+import { AuthFinished } from "../AuthFinished";
 
 export const LoginForm = () => {
   const params = useSearchParams();
@@ -82,6 +84,8 @@ export const LoginForm = () => {
         ))}
       </Stepper>
       {activeStep === 0 ? <EmailPasswordLoginForm /> : null}
+      {activeStep === 1 ? <EnterTOTPCodeForm /> : null}
+      {activeStep === 2 ? <AuthFinished /> : null}
     </Stack>
   );
 };

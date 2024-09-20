@@ -3,7 +3,7 @@
 import {
   EmailPasswordRegistrationForm,
   RegisterAuthenticator,
-  RegistrationFinished,
+  AuthFinished,
 } from "@/components";
 import {
   Box,
@@ -87,7 +87,7 @@ export const RegistrationForm = () => {
       </Stepper>
       {activeStep === 0 ? <EmailPasswordRegistrationForm /> : null}
       {activeStep === 1 ? <RegisterAuthenticator /> : null}
-      {activeStep === 2 ? <RegistrationFinished /> : null}
+      {activeStep === 2 ? <AuthFinished /> : null}
     </Stack>
   );
 };

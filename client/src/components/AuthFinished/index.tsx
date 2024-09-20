@@ -11,12 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
-export const RegistrationFinished = () => {
+export const AuthFinished = () => {
   const router = useRouter();
 
   return (
     <Stack w="full" gap="5">
-      <Text fontSize="3xl">Реєстрацію завершено</Text>
+      <Text fontSize="3xl">Готово!</Text>
       <Alert
         status="success"
         variant="subtle"

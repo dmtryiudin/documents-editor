@@ -6,6 +6,7 @@ import { TokenService } from "./tokenService";
 import { TotpService } from "./totpService";
 import { F2ALoginRequest } from "../types/F2ALoginRequest";
 import { JWTTokenData } from "../types/JWTTokenData";
+import { UserDTO } from "../dto/UserDTO";
 
 export class AuthService {
   static async registration({ username, password }: AuthRequest) {
@@ -33,7 +34,7 @@ export class AuthService {
     );
 
     return {
-      user: createdUser,
+      user: { ...new UserDTO(createdUser) },
       accessToken,
       refreshToken,
       totpUri: authUri,
@@ -90,7 +91,7 @@ export class AuthService {
     await TokenService.killPreLoginToken(candidate.id);
 
     return {
-      user: candidate,
+      user: { ...new UserDTO(candidate) },
       accessToken,
       refreshToken,
     };
