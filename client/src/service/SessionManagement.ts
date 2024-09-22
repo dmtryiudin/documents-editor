@@ -18,7 +18,7 @@ export class SessionManagement {
       data: { encryptedSession },
     });
 
-    cookies().set(SESSION_ID, createdSession.id.toString());
+    cookies().set(SESSION_ID, createdSession.id.toString(), { httpOnly: true });
   }
 
   static async getSession(withTokens = false) {
