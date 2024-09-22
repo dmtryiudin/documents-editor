@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+    # No ports exposed
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "3001:3001"
+    # Ensure your application is listening on port 3001
+
+  client:
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    # Ensure your application is configured to connect to the api-gateway at the correct URL
+    environment:
+      - API_GATEWAY_URL=http://api-gateway:3001
