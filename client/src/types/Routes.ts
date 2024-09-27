@@ -1,4 +1,5 @@
 export enum Routes {
+  MAIN = "/",
   LOGIN = "/auth/login",
   REGISTRATION = "/auth/registration",
   LOGOUT = "/auth/logout",

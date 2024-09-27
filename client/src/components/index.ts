@@ -6,3 +6,4 @@ export * from "./RegistrationForm";
 export * from "./RegisterAuthenticator";
 export * from "./AuthFinished";
 export * from "./LoginForm";
+export * from "./MainHeader";
