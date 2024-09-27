@@ -18,19 +18,30 @@ export class SessionManagement {
       data: { encryptedSession },
     });
 
-    cookies().set(SESSION_ID, createdSession.id.toString(), { httpOnly: true });
+    const encryptedSessionId = CryptoJS.AES.encrypt(
+      createdSession.id.toString(),
+      process.env.SESSION_ID_ENCRYPTION_KEY!
+    ).toString();
+
+    cookies().set(SESSION_ID, encryptedSessionId, { httpOnly: true });
   }
 
   static async getSession(withTokens = false) {
     try {
-      const sessionId = Number(cookies().get(SESSION_ID)?.value);
+      const encryptedSessionId = cookies().get(SESSION_ID)?.value;
+      const sessionId = encryptedSessionId
+        ? CryptoJS.AES.decrypt(
+            encryptedSessionId,
+            process.env.SESSION_ID_ENCRYPTION_KEY!
+          ).toString(CryptoJS.enc.Utf8)
+        : null;
 
       if (!sessionId) {
         return null;
       }
 
       const encryptedSession = await prisma.session.findFirst({
-        where: { id: sessionId },
+        where: { id: +sessionId },
       });
 
       if (!encryptedSession?.encryptedSession) {
@@ -59,13 +70,19 @@ export class SessionManagement {
 
   static async logout() {
     try {
-      const sessionId = Number(cookies().get(SESSION_ID)?.value);
+      const encryptedSessionId = cookies().get(SESSION_ID)?.value;
+      const sessionId = encryptedSessionId
+        ? CryptoJS.AES.decrypt(
+            encryptedSessionId,
+            process.env.SESSION_ID_ENCRYPTION_KEY!
+          ).toString(CryptoJS.enc.Utf8)
+        : null;
 
       if (!sessionId) {
         return;
       }
 
-      await prisma.session.delete({ where: { id: sessionId } });
+      await prisma.session.delete({ where: { id: +sessionId } });
       cookies().delete(SESSION_ID);
     } catch {
       return;
