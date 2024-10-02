@@ -7,6 +7,25 @@ import { cookies } from "next/headers";
 import { SESSION_ID } from "@/consts/hardcodedStrings";
 
 export class SessionManagement {
+  static async getSessionId() {
+    const encryptedSessionId = cookies().get(SESSION_ID)?.value;
+
+    if (!encryptedSessionId) {
+      return null;
+    }
+
+    const decryptedSessionId = CryptoJS.AES.decrypt(
+      encryptedSessionId,
+      process.env.SESSION_ID_ENCRYPTION_KEY!
+    );
+
+    const sessionId = Number(
+      JSON.parse(decryptedSessionId.toString(CryptoJS.enc.Utf8))
+    );
+
+    return sessionId;
+  }
+
   static async setSession(authData: Session) {
     const jsonSession = JSON.stringify(authData);
     const encryptedSession = CryptoJS.AES.encrypt(
@@ -18,12 +37,22 @@ export class SessionManagement {
       data: { encryptedSession },
     });
 
-    cookies().set(SESSION_ID, createdSession.id.toString(), { httpOnly: true });
+    const encryptedSessionId = CryptoJS.AES.encrypt(
+      createdSession.id.toString(),
+      process.env.SESSION_ID_ENCRYPTION_KEY!
+    ).toString();
+
+    cookies().set(SESSION_ID, encryptedSessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+    });
   }
 
   static async getSession(withTokens = false) {
     try {
-      const sessionId = Number(cookies().get(SESSION_ID)?.value);
+      const sessionId = await this.getSessionId();
 
       if (!sessionId) {
         return null;
@@ -59,16 +88,16 @@ export class SessionManagement {
 
   static async logout() {
     try {
-      const sessionId = Number(cookies().get(SESSION_ID)?.value);
+      const sessionId = await this.getSessionId();
 
       if (!sessionId) {
-        return;
+        return null;
       }
 
-      await prisma.session.delete({ where: { id: sessionId } });
       cookies().delete(SESSION_ID);
-    } catch {
-      return;
+      await prisma.session.delete({ where: { id: sessionId } });
+    } catch (e) {
+      return null;
     }
   }
 }
