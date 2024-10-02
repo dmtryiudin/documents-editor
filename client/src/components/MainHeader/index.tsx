@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Routes } from "@/types/Routes";
 import { NavLink } from "../NavLink";
 import { SessionManagement } from "@/service/SessionManagement";
+import { HeaderProfileMenu } from "../HeaderProfileMenu";
 
 export const MainHeader = async () => {
   const session = await SessionManagement.getSession();
@@ -17,9 +18,7 @@ export const MainHeader = async () => {
       </Link>
       <Flex as="nav" gap="5">
         {session ? (
-          <NavLink color="white" href={""}>
-            {session.user.username}
-          </NavLink>
+          <HeaderProfileMenu username={session.user.username} />
         ) : (
           <>
             <NavLink color="white" href={Routes.LOGIN}>
