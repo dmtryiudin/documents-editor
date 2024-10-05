@@ -1,6 +1,6 @@
 import amqp from "amqplib";
 import { errorHandler } from "../lib/errorHandler";
-import { AuthService } from "../service/authService";
+import { AuthService } from "../services/authService";
 import { AuthRequest } from "../types/AuthRequest";
 import { F2ALoginRequest } from "../types/F2ALoginRequest";
 import { RefreshTokenRequest } from "../types/RefreshTokenRequest";

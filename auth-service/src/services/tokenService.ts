@@ -15,7 +15,6 @@ export class TokenService {
       { expiresIn: "5m" }
     );
   }
-  static async validateAccessToken(token: string) {}
 
   static async generateRefreshToken(userId: Types.ObjectId) {
     await RefreshToken.findOneAndDelete({ user: userId });

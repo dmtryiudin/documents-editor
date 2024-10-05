@@ -23,4 +23,8 @@ export class ResponseError extends Error {
   static unauthorized(message: string, context?: Array<any>) {
     return new ResponseError(message, 401, context);
   }
+
+  static notFound(message: string, context?: Array<any>) {
+    return new ResponseError(message, 404, context);
+  }
 }

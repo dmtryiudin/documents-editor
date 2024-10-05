@@ -5,7 +5,7 @@ import { Logo } from "@/assets/logo";
 import Link from "next/link";
 import { Routes } from "@/types/Routes";
 import { NavLink } from "../NavLink";
-import { SessionManagement } from "@/service/SessionManagement";
+import { SessionManagement } from "@/services/SessionManagement";
 import { HeaderProfileMenu } from "../HeaderProfileMenu";
 
 export const MainHeader = async () => {

@@ -5,7 +5,7 @@ import { FormValues } from "./types";
 import { api } from "@/utils/api";
 import { redirect } from "next/navigation";
 import { RegistrationResponse } from "@/types/RegistrationResponse";
-import { SessionManagement } from "@/service/SessionManagement";
+import { SessionManagement } from "@/services/SessionManagement";
 import { ApiRoutes, Routes } from "@/types/Routes";
 
 export async function submitForm(data: FormValues) {

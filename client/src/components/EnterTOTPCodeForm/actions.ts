@@ -4,7 +4,7 @@ import { Response } from "@/types/Response";
 import { api } from "@/utils/api";
 import { redirect } from "next/navigation";
 import { Session } from "@/types/Session";
-import { SessionManagement } from "@/service/SessionManagement";
+import { SessionManagement } from "@/services/SessionManagement";
 import { ApiRoutes, Routes } from "@/types/Routes";
 import { FormValues } from "./types";
 

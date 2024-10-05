@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { AmqpClient } from "./lib/amqpClient";
 import { Queues } from "./types/Queues";
-import { AuthController } from "./controller/authController";
+import { AuthController } from "./controllers/authController";
 
 dotenv.config();
 
