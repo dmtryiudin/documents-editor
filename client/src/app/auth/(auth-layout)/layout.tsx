@@ -6,8 +6,8 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <Container maxW="100%" bg="cyan.700">
-      <Center minH="100vh" py="4">
+    <Container maxW="100%" bg="cyan.700" h="100%">
+      <Center h="100%" py="4">
         <Box
           bg="white"
           rounded="lg"
