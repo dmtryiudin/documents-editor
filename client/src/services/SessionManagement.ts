@@ -2,47 +2,57 @@ import "server-only";
 
 import { prisma } from "@/consts/prisma";
 import { Session } from "@/types/Session";
-import CryptoJS from "crypto-js";
 import { cookies } from "next/headers";
-import { SESSION_ID } from "@/consts/hardcodedStrings";
+import { ENCRYPT_SESSION_ID_IV, SESSION_ID } from "@/consts/hardcodedStrings";
+import { AESEncryption } from "./AESEncryption";
 
 export class SessionManagement {
   static async getSessionId() {
     const encryptedSessionId = cookies().get(SESSION_ID)?.value;
+    const encryptedSessionIdIv = cookies().get(ENCRYPT_SESSION_ID_IV)?.value;
 
-    if (!encryptedSessionId) {
+    if (!encryptedSessionId || !encryptedSessionIdIv) {
       return null;
     }
 
-    const decryptedSessionId = CryptoJS.AES.decrypt(
-      encryptedSessionId,
-      process.env.SESSION_ID_ENCRYPTION_KEY!
-    );
+    const decryptedSessionId = await AESEncryption.decrypt({
+      hexEncryptedMsg: encryptedSessionId,
+      key: process.env.SESSION_ID_IV_ENCRYPTION_KEY!,
+      iv: encryptedSessionIdIv,
+    });
 
-    const sessionId = Number(
-      JSON.parse(decryptedSessionId.toString(CryptoJS.enc.Utf8))
-    );
-
-    return sessionId;
+    return Number(decryptedSessionId);
   }
 
   static async setSession(authData: Session) {
     const jsonSession = JSON.stringify(authData);
-    const encryptedSession = CryptoJS.AES.encrypt(
-      jsonSession,
-      process.env.SESSION_ENCRYPTION_KEY!
-    ).toString();
 
-    const createdSession = await prisma.session.create({
-      data: { encryptedSession },
+    const encryptedSessionIv = AESEncryption.generateUtf8Iv();
+    const encryptedSession = await AESEncryption.encrypt({
+      msg: jsonSession,
+      key: process.env.SESSION_ENCRYPTION_KEY!,
+      iv: encryptedSessionIv,
     });
 
-    const encryptedSessionId = CryptoJS.AES.encrypt(
-      createdSession.id.toString(),
-      process.env.SESSION_ID_ENCRYPTION_KEY!
-    ).toString();
+    const createdSession = await prisma.session.create({
+      data: { encryptedSession, iv: encryptedSessionIv },
+    });
+
+    const encryptedSessionIdIv = AESEncryption.generateUtf8Iv();
+    const encryptedSessionId = await AESEncryption.encrypt({
+      msg: createdSession.id.toString(),
+      key: process.env.SESSION_ID_IV_ENCRYPTION_KEY!,
+      iv: encryptedSessionIdIv,
+    });
 
     cookies().set(SESSION_ID, encryptedSessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+    });
+
+    cookies().set(ENCRYPT_SESSION_ID_IV, encryptedSessionIdIv, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -59,22 +69,22 @@ export class SessionManagement {
       }
 
       const encryptedSession = await prisma.session.findFirst({
-        where: { id: +sessionId },
+        where: { id: sessionId },
       });
 
-      if (!encryptedSession?.encryptedSession) {
+      if (!encryptedSession?.encryptedSession || !encryptedSession.iv) {
         return null;
       }
 
-      const bytes = CryptoJS.AES.decrypt(
-        encryptedSession?.encryptedSession,
-        process.env.SESSION_ENCRYPTION_KEY!
-      );
-      const decryptedSession = JSON.parse(
-        bytes.toString(CryptoJS.enc.Utf8)
-      ) as Session;
+      const decryptedSession = await AESEncryption.decrypt({
+        hexEncryptedMsg: encryptedSession.encryptedSession,
+        key: process.env.SESSION_ENCRYPTION_KEY!,
+        iv: encryptedSession.iv,
+      });
 
-      const { user, ...tokens } = decryptedSession;
+      const session = JSON.parse(decryptedSession);
+
+      const { user, ...tokens } = session as Session;
 
       if (withTokens) {
         return { user, ...tokens };
@@ -95,6 +105,7 @@ export class SessionManagement {
       }
 
       cookies().delete(SESSION_ID);
+      cookies().delete(ENCRYPT_SESSION_ID_IV);
       await prisma.session.delete({ where: { id: sessionId } });
     } catch (e) {
       return null;

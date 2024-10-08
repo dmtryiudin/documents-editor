@@ -1,8 +1,8 @@
 import { authenticator } from "otplib";
-import CryptoJS from "crypto-js";
+import { AESEncryptionService } from "./aesEncryptionService";
 
 export class TotpService {
-  static registerTotp(userName: string) {
+  static async registerTotp(userName: string) {
     const secret = authenticator.generateSecret();
     const authUri = authenticator.keyuri(
       userName,
@@ -10,20 +10,26 @@ export class TotpService {
       secret
     );
 
-    const encryptedSecret = CryptoJS.AES.encrypt(
-      secret,
-      process.env.TOTP_SECRET_ENCRYPTION_KEY!
-    ).toString();
+    const encryptSecretIv = AESEncryptionService.generateUtf8Iv();
+    const encryptedSecret = await AESEncryptionService.encrypt({
+      msg: secret,
+      key: process.env.TOTP_SECRET_ENCRYPTION_KEY!,
+      iv: encryptSecretIv,
+    });
 
-    return { secret: encryptedSecret, authUri };
+    return { secret: encryptedSecret, authUri, encryptSecretIv };
   }
 
-  static verifyTotp(key: string, encryptedSecret: string) {
-    const bytes = CryptoJS.AES.decrypt(
-      encryptedSecret,
-      process.env.TOTP_SECRET_ENCRYPTION_KEY!
-    );
-    const decryptedSecret = bytes.toString(CryptoJS.enc.Utf8);
+  static async verifyTotp(
+    key: string,
+    encryptedSecret: string,
+    encryptSecretIv: string
+  ) {
+    const decryptedSecret = await AESEncryptionService.decrypt({
+      hexEncryptedMsg: encryptedSecret,
+      key: process.env.TOTP_SECRET_ENCRYPTION_KEY!,
+      iv: encryptSecretIv,
+    });
 
     const isValid = authenticator.verify({
       token: key,

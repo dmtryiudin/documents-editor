@@ -5,7 +5,6 @@ import { AuthRequest } from "../types/AuthRequest";
 import { TokenService } from "./tokenService";
 import { TotpService } from "./totpService";
 import { F2ALoginRequest } from "../types/F2ALoginRequest";
-import { JWTTokenData } from "../types/JWTTokenData";
 import { UserDTO } from "../dto/UserDTO";
 
 export class AuthService {
@@ -20,12 +19,17 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const { secret, authUri } = TotpService.registerTotp(username);
+    const {
+      secret,
+      authUri,
+      encryptSecretIv: encryptTotpSecretIv,
+    } = await TotpService.registerTotp(username);
 
     const createdUser = await User.create({
       username,
       password: hashedPassword,
       totpSecret: secret,
+      encryptTotpSecretIv,
     });
 
     const accessToken = TokenService.generateAccessToken(createdUser.id);
@@ -78,7 +82,12 @@ export class AuthService {
     }
 
     const secret = candidate.totpSecret;
-    const isTotpValid = TotpService.verifyTotp(totpCode, secret);
+    const encryptedSecretIv = candidate.encryptTotpSecretIv;
+    const isTotpValid = await TotpService.verifyTotp(
+      totpCode,
+      secret,
+      encryptedSecretIv
+    );
 
     if (!isTotpValid) {
       throw ResponseError.unauthorized("Невірний код з автентифікатору.");
