@@ -13,6 +13,16 @@ const main = async () => {
     Queues.GET_USER_ITEM,
     UsersController.getUserData
   );
+
+  await AmqpClient.initRpcListener(
+    Queues.UPDATE_USER_DATA,
+    UsersController.updateUserData
+  );
+
+  await AmqpClient.initRpcListener(
+    Queues.DELETE_USER_PROFILE,
+    UsersController.deleteUserProfile
+  );
 };
 
 main();

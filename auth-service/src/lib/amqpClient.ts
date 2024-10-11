@@ -22,6 +22,34 @@ export class AmqpClient {
     };
   }
 
+  static async initListener(
+    queue: string,
+    callback: (message: amqp.ConsumeMessage) => Promise<any>
+  ) {
+    const { channel } = await this.getConnectionAndChannel();
+
+    await channel.assertQueue(queue, {
+      durable: true,
+    });
+
+    await channel.consume(
+      queue,
+      async (msg) => {
+        if (!msg) {
+          return null;
+        }
+
+        try {
+          await callback(msg);
+        } catch {
+        } finally {
+          channel.ack(msg);
+        }
+      },
+      { noAck: false }
+    );
+  }
+
   static async initRpcListener(
     queue: string,
     callback: (message: amqp.ConsumeMessage) => Promise<string>

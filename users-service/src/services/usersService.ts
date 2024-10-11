@@ -21,13 +21,30 @@ export class UsersService {
   ) {
     const { firstName, lastName } = userData;
 
-    await User.findByIdAndUpdate(userId, {
+    const user = await User.findByIdAndUpdate(userId, {
       firstName,
       lastName,
     });
+
+    if (!user) {
+      throw ResponseError.notFound("Не вдалося знайти користувача");
+    }
+
+    user.firstName = userData.firstName || user.firstName;
+    user.lastName = userData.lastName || user.lastName;
+
+    await user.save();
+
+    return { ...new UserDTO(user) };
   }
 
   static async deleteUser(userId: Types.ObjectId) {
-    await User.findByIdAndDelete(userId);
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      throw ResponseError.notFound("Не вдалося знайти користувача");
+    }
+
+    return { ...new UserDTO(user) };
   }
 }

@@ -19,6 +19,10 @@ const main = async () => {
     Queues.REFRESH_TOKEN,
     AuthController.refreshToken
   );
+  await AmqpClient.initRpcListener(
+    Queues.CHECK_ACCESS_TOKEN,
+    AuthController.checkAccessToken
+  );
 };
 
 main();

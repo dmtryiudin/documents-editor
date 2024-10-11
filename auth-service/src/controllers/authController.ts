@@ -7,6 +7,7 @@ import { RefreshTokenRequest } from "../types/RefreshTokenRequest";
 import { response } from "../lib/response";
 import { z } from "zod";
 import { ResponseError } from "../lib/responseError";
+import { TokenService } from "../services/tokenService";
 
 export class AuthController {
   static async registration(msg: amqp.ConsumeMessage) {
@@ -152,6 +153,25 @@ export class AuthController {
         ok: true,
         status: 200,
         data: responseData,
+        error: null,
+      });
+    } catch (e: any) {
+      return errorHandler(e);
+    }
+  }
+
+  static async checkAccessToken(msg: amqp.ConsumeMessage) {
+    try {
+      const parsedPayload =
+        msg.content.toString() && JSON.parse(msg.content.toString());
+      const { token } = parsedPayload as { token: string };
+
+      const { userId } = await TokenService.getAccessTokenData(token);
+
+      return response({
+        ok: true,
+        status: 200,
+        data: { userId },
         error: null,
       });
     } catch (e: any) {
