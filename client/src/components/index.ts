@@ -8,3 +8,6 @@ export * from "./AuthFinished";
 export * from "./LoginForm";
 export * from "./MainHeader";
 export * from "./HeaderProfileMenu";
+export * from "./ProtectedRoute";
+export * from "./LoadingSpinner";
+export * from "./EditProfileDataForm";

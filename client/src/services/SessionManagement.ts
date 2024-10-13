@@ -5,9 +5,14 @@ import { Session } from "@/types/Session";
 import { cookies } from "next/headers";
 import { ENCRYPT_SESSION_ID_IV, SESSION_ID } from "@/consts/hardcodedStrings";
 import { AESEncryption } from "./AESEncryption";
+import { api } from "@/utils/api";
+import { ApiRoutes, Routes } from "@/types/Routes";
+import { Response } from "@/types/Response";
+import { RefreshTokenResponse } from "@/types/RefreshTokenResponse";
+import { redirect } from "next/navigation";
 
 export class SessionManagement {
-  static async getSessionId() {
+  private static async getSessionId() {
     const encryptedSessionId = cookies().get(SESSION_ID)?.value;
     const encryptedSessionIdIv = cookies().get(ENCRYPT_SESSION_ID_IV)?.value;
 
@@ -60,6 +65,14 @@ export class SessionManagement {
     });
   }
 
+  static async getSession(): Promise<Omit<
+    Session,
+    "accessToken" | "refreshToken"
+  > | null>;
+  static async getSession(
+    withTokens: false
+  ): Promise<Omit<Session, "accessToken" | "refreshToken"> | null>;
+  static async getSession(withTokens: true): Promise<Session | null>;
   static async getSession(withTokens = false) {
     try {
       const sessionId = await this.getSessionId();
@@ -91,7 +104,8 @@ export class SessionManagement {
       }
 
       return { user };
-    } catch {
+    } catch (e) {
+      console.log(e);
       return null;
     }
   }
@@ -108,7 +122,47 @@ export class SessionManagement {
       cookies().delete(ENCRYPT_SESSION_ID_IV);
       await prisma.session.delete({ where: { id: sessionId } });
     } catch (e) {
+      console.log(e);
       return null;
+    }
+  }
+
+  static async refreshToken() {
+    try {
+      const session = await this.getSession(true);
+
+      const refreshToken = session?.refreshToken;
+      console.log({ refreshToken });
+
+      if (refreshToken) {
+        const res = await api<Response<RefreshTokenResponse>>({
+          route: ApiRoutes.REFRESH_TOKEN,
+          config: { method: "POST", body: JSON.stringify({ refreshToken }) },
+        });
+
+        console.log(res.data);
+        await this.setSession({ ...session, ...res.data });
+      }
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  }
+
+  static async protectedRoute() {
+    try {
+      await api({
+        route: ApiRoutes.CHECK_ACCESS_TOKEN,
+        isProtected: true,
+      });
+      console.log("yes");
+    } catch (e: any) {
+      const errorData = e?.message && JSON.parse(e.message);
+      const statusCode = errorData.status;
+
+      if (statusCode === 401) {
+        redirect(Routes.LOGIN);
+      }
     }
   }
 }

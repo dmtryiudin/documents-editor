@@ -11,12 +11,12 @@ import { ApiRoutes, Routes } from "@/types/Routes";
 export async function submitForm(data: FormValues) {
   let redirectUrl = "";
   try {
-    const response = await api.post<Response<RegistrationResponse>>(
-      ApiRoutes.REGISTRATION,
-      data
-    );
+    const response = await api<Response<RegistrationResponse>>({
+      route: ApiRoutes.REGISTRATION,
+      config: { method: "POST", body: JSON.stringify(data) },
+    });
 
-    const { data: responseData } = response.data;
+    const { data: responseData } = response;
 
     if (!responseData) {
       throw new Error();
@@ -30,8 +30,9 @@ export async function submitForm(data: FormValues) {
     const { totpUri, ...rest } = responseData;
     await SessionManagement.setSession(rest);
   } catch (e: any) {
+    const errorData = e?.message && JSON.parse(e.message);
     const errorMessage =
-      e?.response?.data?.error?.message ||
+      errorData?.error?.message ||
       "Щось пішло не так. Спробуйте ще раз пізніше.";
 
     redirectUrl = `${

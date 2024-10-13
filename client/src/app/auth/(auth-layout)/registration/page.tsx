@@ -1,9 +1,9 @@
-import { RegistrationForm } from "@/components";
+import { LoadingSpinner, RegistrationForm } from "@/components";
 import { Suspense } from "react";
 
 export default function RegistrationPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingSpinner />}>
       <RegistrationForm />
     </Suspense>
   );

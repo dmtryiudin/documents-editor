@@ -11,17 +11,16 @@ import { FormValues } from "./types";
 export async function submitForm({ token, totpCode }: FormValues) {
   let redirectUrl = "";
   try {
-    const response = await api.post<Response<Session>>(
-      ApiRoutes.F2A_LOGIN,
-      { totpCode },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api<Response<Session>>({
+      route: ApiRoutes.F2A_LOGIN,
+      config: {
+        method: "POST",
+        body: JSON.stringify({ totpCode }),
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    });
 
-    const { data: responseData } = response.data;
+    const { data: responseData } = response;
 
     if (!responseData) {
       throw new Error();
@@ -30,8 +29,9 @@ export async function submitForm({ token, totpCode }: FormValues) {
     redirectUrl = `${Routes.LOGIN}?step=2`;
     await SessionManagement.setSession(responseData);
   } catch (e: any) {
+    const errorData = e?.message && JSON.parse(e.message);
     const errorMessage =
-      e?.response?.data?.error?.message ||
+      errorData?.error?.message ||
       "Щось пішло не так. Спробуйте ще раз пізніше.";
 
     redirectUrl = `${Routes.LOGIN}?step=1&token=${encodeURIComponent(

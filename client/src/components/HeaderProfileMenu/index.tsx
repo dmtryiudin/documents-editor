@@ -16,6 +16,12 @@ export const HeaderProfileMenu: FC<HeaderProfileMenuProps> = ({ username }) => {
         {username}
       </MenuButton>
       <MenuList>
+        <MenuItem
+          as="button"
+          onClick={() => router.push(Routes.PROFILE_SETTINGS)}
+        >
+          Змінити дані облікового запису
+        </MenuItem>
         <MenuItem as="button" onClick={() => router.push(Routes.LOGOUT)}>
           Вийти з облікового запису
         </MenuItem>
