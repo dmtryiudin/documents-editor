@@ -4,6 +4,7 @@ import { RefreshToken } from "../models/ResreshToken";
 import { PreLoginToken } from "../models/PreLoginToken";
 import bcrypt from "bcrypt";
 import { JWTTokenData } from "../types/JWTTokenData";
+import { ResponseError } from "../lib/responseError";
 
 export class TokenService {
   static generateAccessToken(userId: Types.ObjectId) {
@@ -15,7 +16,6 @@ export class TokenService {
       { expiresIn: "5m" }
     );
   }
-  static async validateAccessToken(token: string) {}
 
   static async generateRefreshToken(userId: Types.ObjectId) {
     await RefreshToken.findOneAndDelete({ user: userId });
@@ -136,4 +136,32 @@ export class TokenService {
 
     return owner;
   }
+
+  static async validateAccessToken(token: string) {
+    try {
+      const verifyTokenResult = jwt.verify(
+        token,
+        process.env.JWT_ACCESS_SECRET!
+      );
+
+      if (!verifyTokenResult) {
+        return null;
+      }
+
+      return verifyTokenResult;
+    } catch {
+      return null;
+    }
+  }
+
+  static getAccessTokenData = async (token: string) => {
+    const tokenData = await this.validateAccessToken(token);
+    const result = this.getTokenData(tokenData);
+
+    if (!result) {
+      throw ResponseError.unauthorized("Надайте валідні дані автентифікації");
+    }
+
+    return result;
+  };
 }

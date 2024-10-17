@@ -31,6 +31,18 @@ export class AmqpClient {
     };
   }
 
+  static async sendRequest(queue: string, payload: string): Promise<any> {
+    const { channel } = await this.getConnectionAndChannel();
+
+    await channel.assertQueue(queue, {
+      durable: true,
+    });
+
+    channel.sendToQueue(queue, Buffer.from(payload), {
+      persistent: true,
+    });
+  }
+
   static async sendRpcRequest(
     queue: string,
     payload: string

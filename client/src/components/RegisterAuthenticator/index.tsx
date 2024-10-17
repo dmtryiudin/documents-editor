@@ -15,7 +15,7 @@ export const RegisterAuthenticator: FC = () => {
   return (
     <Stack w="full" gap="5">
       <Stack gap="0">
-        <Text fontSize="3xl">Зареєструйте автентифікатор</Text>
+        <Text fontSize="2xl">Зареєструйте автентифікатор</Text>
         <Text
           fontSize="sm"
           color="gray.500"

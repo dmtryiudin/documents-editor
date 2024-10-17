@@ -1,4 +1,4 @@
-import { SessionManagement } from "@/service/SessionManagement";
+import { SessionManagement } from "@/services/SessionManagement";
 import { Routes } from "@/types/Routes";
 import { Button } from "@chakra-ui/react";
 

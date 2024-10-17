@@ -1,9 +1,9 @@
-import { LoginForm } from "@/components";
+import { LoadingSpinner, LoginForm } from "@/components";
 import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingSpinner />}>
       <LoginForm />
     </Suspense>
   );

@@ -13,4 +13,5 @@ datasource db {
 model Session {
   id    Int     @id @default(autoincrement())
   encryptedSession String
+  iv String
 }

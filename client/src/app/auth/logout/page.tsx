@@ -1,7 +1,12 @@
-import { SessionManagement } from "@/service/SessionManagement";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function LogoutPage() {
-  await SessionManagement.logout();
-  return redirect("/");
+import { useEffect } from "react";
+import { logout } from "./actions";
+
+export default function LogoutPage() {
+  useEffect(() => {
+    logout();
+  });
+
+  return null;
 }

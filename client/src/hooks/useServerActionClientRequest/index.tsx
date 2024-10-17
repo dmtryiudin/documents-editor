@@ -1,9 +1,10 @@
 import { useBoolean } from "@chakra-ui/react";
 
 export function useServerActionClientRequest<T>(
-  callback: (props: T) => Promise<any>
+  callback: (props: T) => Promise<any>,
+  defaultLoading = false
 ) {
-  const [isLoading, { on, off }] = useBoolean();
+  const [isLoading, { on, off }] = useBoolean(defaultLoading);
 
   const wrappedCallback = async (props: T) => {
     on();

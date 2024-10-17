@@ -10,12 +10,15 @@ import { ApiRoutes, Routes } from "@/types/Routes";
 export async function submitForm(data: FormValues) {
   let redirectUrl = "";
   try {
-    const response = await api.post<Response<PreLoginResponse>>(
-      ApiRoutes.PRE_LOGIN,
-      data
-    );
+    const response = await api<Response<PreLoginResponse>>({
+      route: ApiRoutes.PRE_LOGIN,
+      config: {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    });
 
-    const { data: responseData } = response.data;
+    const { data: responseData } = response;
 
     if (!responseData) {
       throw new Error();
@@ -25,8 +28,9 @@ export async function submitForm(data: FormValues) {
       responseData.preLoginToken
     )}`;
   } catch (e: any) {
+    const errorData = e?.message && JSON.parse(e.message);
     const errorMessage =
-      e?.response?.data?.error?.message ||
+      errorData?.error?.message ||
       "Щось пішло не так. Спробуйте ще раз пізніше.";
 
     redirectUrl = `${Routes.LOGIN}?step=0&errorMessage=${encodeURIComponent(

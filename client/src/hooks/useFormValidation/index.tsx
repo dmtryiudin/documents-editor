@@ -1,12 +1,27 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { z } from "zod";
+import { StringifyValues } from "./types";
 
 export function useFormValidation<FieldsType>(
   fields: FieldsType,
   zodRules: z.ZodObject<any>
 ) {
+  const transformErrorFields = (fields: FieldsType) => {
+    const stringFields = JSON.parse(JSON.stringify(fields)) as {
+      [key: string]: any;
+    };
+
+    for (const key in stringFields) {
+      stringFields[key] = "";
+    }
+
+    return stringFields as StringifyValues<FieldsType>;
+  };
+
   const [formFields, setFormFields] = useState<FieldsType>(fields);
-  const [formErrors, setFormErrors] = useState<FieldsType>(fields);
+  const [formErrors, setFormErrors] = useState<StringifyValues<FieldsType>>(
+    transformErrorFields(fields)
+  );
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const submitHandler = (
@@ -45,5 +60,5 @@ export function useFormValidation<FieldsType>(
     return { onChange, value: formFields[key] };
   };
 
-  return { submitHandler, registerField, formErrors, isSubmitting };
+  return { submitHandler, registerField, formErrors, isSubmitting, formFields };
 }

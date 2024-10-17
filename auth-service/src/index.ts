@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { AmqpClient } from "./lib/amqpClient";
 import { Queues } from "./types/Queues";
-import { AuthController } from "./controller/authController";
+import { AuthController } from "./controllers/authController";
 
 dotenv.config();
 
@@ -18,6 +18,10 @@ const main = async () => {
   await AmqpClient.initRpcListener(
     Queues.REFRESH_TOKEN,
     AuthController.refreshToken
+  );
+  await AmqpClient.initRpcListener(
+    Queues.CHECK_ACCESS_TOKEN,
+    AuthController.checkAccessToken
   );
 };
 
