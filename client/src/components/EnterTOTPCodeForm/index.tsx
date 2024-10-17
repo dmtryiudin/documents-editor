@@ -35,7 +35,7 @@ export const EnterTOTPCodeForm = () => {
 
   return (
     <Stack w="full" gap="5" as="form" onSubmit={onSubmit}>
-      <Text fontSize="3xl">Введіть код з автентифікатору</Text>
+      <Text fontSize="2xl">Введіть код з автентифікатору</Text>
       {errorMessage ? (
         <Alert status="error">
           <AlertIcon />

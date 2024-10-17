@@ -16,7 +16,7 @@ export const AuthFinished = () => {
 
   return (
     <Stack w="full" gap="5">
-      <Text fontSize="3xl">Готово!</Text>
+      <Text fontSize="2xl">Готово!</Text>
       <Alert
         status="success"
         variant="subtle"

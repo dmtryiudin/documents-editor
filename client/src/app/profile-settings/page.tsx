@@ -1,10 +1,17 @@
-import { ProtectedRoute } from "@/components";
+import {
+  LoadingSpinner,
+  ProfileDataFormWrapper,
+  ProtectedRoute,
+} from "@/components";
 import { Container } from "@chakra-ui/react";
+import { Suspense } from "react";
 
-function SettingsPage() {
+async function SettingsPage() {
   return (
     <Container maxW="100%" h="100%" py="4">
-      settings
+      <Suspense fallback={<LoadingSpinner />}>
+        <ProfileDataFormWrapper />
+      </Suspense>
     </Container>
   );
 }

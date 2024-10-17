@@ -36,7 +36,7 @@ export const EmailPasswordRegistrationForm: FC = () => {
 
   return (
     <Stack w="full" gap="5" as="form" onSubmit={submitHandler(onSubmit)}>
-      <Text fontSize="3xl">Створити обліковий запис</Text>
+      <Text fontSize="2xl">Створити обліковий запис</Text>
       {errorMessage ? (
         <Alert status="error">
           <AlertIcon />

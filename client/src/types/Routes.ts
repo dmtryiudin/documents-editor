@@ -13,4 +13,5 @@ export enum ApiRoutes {
   PRE_LOGIN = "/auth/login/pre-login",
   REFRESH_TOKEN = "/auth/refresh-token",
   CHECK_ACCESS_TOKEN = "/auth/check-access-token",
+  USERS = "/users",
 }

@@ -132,7 +132,6 @@ export class SessionManagement {
       const session = await this.getSession(true);
 
       const refreshToken = session?.refreshToken;
-      console.log({ refreshToken });
 
       if (refreshToken) {
         const res = await api<Response<RefreshTokenResponse>>({
@@ -140,7 +139,6 @@ export class SessionManagement {
           config: { method: "POST", body: JSON.stringify({ refreshToken }) },
         });
 
-        console.log(res.data);
         await this.setSession({ ...session, ...res.data });
       }
     } catch (e) {
@@ -155,7 +153,6 @@ export class SessionManagement {
         route: ApiRoutes.CHECK_ACCESS_TOKEN,
         isProtected: true,
       });
-      console.log("yes");
     } catch (e: any) {
       const errorData = e?.message && JSON.parse(e.message);
       const statusCode = errorData.status;
