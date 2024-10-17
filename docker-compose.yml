@@ -1,6 +1,11 @@
 version: "3.8"
 
 services:
+  users-service:
+    build:
+      context: ./users-service
+    # No ports exposed
+
   auth-service:
     build:
       context: ./auth-service
